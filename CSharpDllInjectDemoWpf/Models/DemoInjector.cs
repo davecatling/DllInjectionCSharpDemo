@@ -98,7 +98,6 @@ namespace CSharpDllInjectDemoWpf.Models
 
         public void SetLoadLibraryAddr()
         {
-            // searching for the address of LoadLibraryA and storing it in a pointer
             LoadLibraryAddress = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
         }
 
@@ -109,20 +108,16 @@ namespace CSharpDllInjectDemoWpf.Models
 
         public void SetAllocMemAddr()
         {
-            // alocating some memory on the target process - enough to store the name of the dll
-            // and storing its address in a pointer
             AllocMemoryAddress = VirtualAllocEx(ProcessHandle, IntPtr.Zero, (uint)((_dllName.Length + 1) * Marshal.SizeOf(typeof(char))), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
         }
 
         public void WriteProcessMemory()
         {
-            // writing the name of the dll there
-            WriteProcessMemory(ProcessHandle, AllocMemoryAddress, Encoding.Default.GetBytes(DLL_NAME), (uint)((DLL_NAME.Length + 1) * Marshal.SizeOf(typeof(char))), out _);
+            WriteProcessMemory(ProcessHandle, AllocMemoryAddress, Encoding.Default.GetBytes(_dllName), (uint)((_dllName.Length + 1) * Marshal.SizeOf(typeof(char))), out _);
         }
 
         public void CreateRemoteThread()
         {
-            // creating a thread that will call LoadLibraryA with allocMemAddress as argument
             CreateRemoteThread(ProcessHandle, IntPtr.Zero, 0, LoadLibraryAddress, AllocMemoryAddress, 0, IntPtr.Zero);
         }            
     }

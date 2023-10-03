@@ -9,7 +9,11 @@
         public string? Description { get; set; }
         public string? Hyperlink { get; set; }
         public bool Current { get;set; }
-        
+
+        public bool IsExecutable
+        {
+            get => Step != null;
+        }        
 
         public DemoStep(StepDelegate? stepDelegate)
         {

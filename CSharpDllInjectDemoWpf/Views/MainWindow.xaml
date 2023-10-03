@@ -11,6 +11,51 @@
         <vm:DllInjectMainVm x:Key="MainVm"/>
     </Window.Resources>
     <Grid DataContext="{StaticResource MainVm}">
-
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Path=ProcessInfos}" ScrollViewer.VerticalScrollBarVisibility="Visible" 
+                 Margin="5" SelectedItem="{Binding Path=SelectedProcessInfo, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=Name}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Grid Grid.Row="0" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="8*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Label Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Center">ID: </Label>
+            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Path=SelectedProcessInfo.Id}" VerticalAlignment="Center"/>
+            <Label Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Center">File name: </Label>
+            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Path=SelectedProcessInfo.FileName}" VerticalAlignment="Center"/>
+            <Label Grid.Column="0" Grid.Row="2" VerticalContentAlignment="Center">Base address: </Label>
+            <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=SelectedProcessInfo.BaseAddress}" VerticalAlignment="Center"/>
+            <Label Grid.Column="0" Grid.Row="3" VerticalContentAlignment="Center">Process handle:</Label>
+            <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Path=DemoInjector.ProcessHandle}" VerticalAlignment="Center"/>
+            <Label Grid.Column="0" Grid.Row="4" VerticalContentAlignment="Center">LoadLibraryA address:</Label>
+            <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding Path=DemoInjector.LoadLibraryAddress}" VerticalAlignment="Center"/>
+            <Label Grid.Column="0" Grid.Row="5" VerticalContentAlignment="Center">AllocMemory address:</Label>
+            <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding Path=DemoInjector.AllocMemoryAddress}" VerticalAlignment="Center"/>
+            <Button Grid.Row="6" Grid.Column="1" HorizontalAlignment="Right" Margin="5" Padding="5" Command="{Binding Path=StartCommand}">Start</Button>
+        </Grid>
     </Grid>
 </Window>

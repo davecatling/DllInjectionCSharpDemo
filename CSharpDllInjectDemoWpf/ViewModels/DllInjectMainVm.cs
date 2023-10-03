@@ -16,12 +16,11 @@ namespace CSharpDllInjectDemoWpf.ViewModels
 
         private ProcessInfo? _selectedProcessInfo;
         private List<ProcessInfo>? _processInfos;
-        private readonly DemoInjector _injector;
-        private ICommand _startCommand;
+        private DemoInjector? _injector;
+        private ICommand? _startCommand;
 
         public DllInjectMainVm()
         {
-            _injector = new DemoInjector();
             ProcessInfos = GetProcesses();
         }
 
@@ -53,11 +52,21 @@ namespace CSharpDllInjectDemoWpf.ViewModels
             }
         }
 
+        public DemoInjector? DemoInjector
+        { 
+            get => _injector;
+            set
+            {
+                _injector = value;
+                OnPropertyChanged(nameof(DemoInjector));
+            }
+        }
+
         public ICommand StartCommand
         {
             get
             {
-                _startCommand ??= new RelayCommand(exec => Start());
+                _startCommand ??= new RelayCommand(exec => Start(), canExec => SelectedProcessInfo != null);
                 return _startCommand;
             }
         }
@@ -71,6 +80,7 @@ namespace CSharpDllInjectDemoWpf.ViewModels
 
         private void Start()
         {
+            DemoInjector = new DemoInjector();
             var demoSteps = new List<DemoStep>();
             LoadNonExecSteps(demoSteps);
             LoadExecSteps(demoSteps);
