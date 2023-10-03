@@ -13,7 +13,7 @@ namespace CSharpDllInjectDemoWpf.ViewModels
     public class DllInjectMainVm
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-        
+
         private ProcessInfo? _selectedProcessInfo;
         private List<ProcessInfo>? _processInfos;
         private readonly DemoInjector _injector;
@@ -174,8 +174,7 @@ namespace CSharpDllInjectDemoWpf.ViewModels
 
         private void LoadExecSteps(List<DemoStep> demoSteps)
         {
-            var execSteps = new List<DemoStep>();
-            execSteps.Add(new DemoStep(_injector.SetTargetProcess)
+            demoSteps.Add(new DemoStep(_injector.SetTargetProcess)
             {
                 Code = "Process targetProcess = Process.GetProcessesByName(ProcessName)[0];",
                 Description = "Call System.Diagnostics.Process.GetProcessByName to return a System.Diagnostics.Process " +
@@ -184,32 +183,43 @@ namespace CSharpDllInjectDemoWpf.ViewModels
                     "of the screen. That list was generated from System.Diagnostics.Process.GetProcesses.",
                 Hyperlink = "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.getprocessesbyname?view=net-7.0"
             });
-            execSteps.Add(new DemoStep(_injector.SetProcHandle)
+            demoSteps.Add(new DemoStep(_injector.SetProcHandle)
             {
                 Code = "IntPtr procHandle = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, false, targetProcess.Id);",
                 Description = "Call OpenProcess API function to get the required process handle with necessary access rights.",
                 Hyperlink = "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess"
             });
-            execSteps.Add(new DemoStep(_injector.SetProcHandle)
+            demoSteps.Add(new DemoStep(_injector.SetProcHandle)
             {
                 Code = "IntPtr loadLibraryAddr = GetProcAddress(GetModuleHandle(\"kernel32.dll\"), \"LoadLibraryA\");",
                 Description = "Call GetProcAddress API function to get to the address of the LoadLibraryA function which will be" +
                     " called when creating the remote thread to load the DLL into the target process.",
                 Hyperlink = "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress"
             });
-
-            // name of the dll we want to inject
-            string dllName = "C:\\Users\\Public\\MessageBoxDemo.dll";
-
-            // alocating some memory on the target process - enough to store the name of the dll
-            // and storing its address in a pointer
-            IntPtr allocMemAddress = VirtualAllocEx(procHandle, IntPtr.Zero, (uint)((dllName.Length + 1) * Marshal.SizeOf(typeof(char))), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
-            // writing the name of the dll there
-            UIntPtr bytesWritten;
-            WriteProcessMemory(procHandle, allocMemAddress, Encoding.Default.GetBytes(dllName), (uint)((dllName.Length + 1) * Marshal.SizeOf(typeof(char))), out bytesWritten);
-
-            // creating a thread that will call LoadLibraryA with allocMemAddress as argument
-            CreateRemoteThread(procHandle, IntPtr.Zero, 0, loadLibraryAddr, allocMemAddress, 0, IntPtr.Zero);
+            demoSteps.Add(new DemoStep(_injector.SetDllName)
+            {
+                Code = "string dllName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, \"MessageBoxDemo.dll\");",
+                Description = "Calculate the full path to the native language DLL you want to inject. In this case we are" +
+                    "using a C++ DLL which calls the MessageBox API function and is in the same folder as this injector.",
+                Hyperlink = "https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox"
+            });
+            demoSteps.Add(new DemoStep(_injector.SetAllocMemAddr)
+            {
+                Code = "IntPtr allocMemAddress = VirtualAllocEx(procHandle, IntPtr.Zero, (uint)((dllName.Length + 1) * Marshal.SizeOf(typeof(char))), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);",
+                Description = "Allocate memory in the address space of the target process. We need enough to store a terminated "
+                    + "string the length of our DLL path.",
+                Hyperlink = "https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualallocex"
+            });
+            demoSteps.Add(new DemoStep(_injector.WriteProcessMemory)
+            {
+                Code = "CreateRemoteThread(procHandle, IntPtr.Zero, 0, loadLibraryAddr, allocMemAddress, 0, IntPtr.Zero);",
+                Description = "Final step. Create a thread in the target process that calls the LoadLibraryA function "
+                    + "passing our DLL path we wrote to the process memory address. Our sample DLL's entry point "
+                    + "has the code which will, after a ten second delay, display the messagebox. You might want to close "
+                    + "this application before the ten seconds expires just to prove that it's not THIS app showing the "
+                    + "messagebox.",
+                Hyperlink = "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createremotethread"
+            });
         }
+    }
 }

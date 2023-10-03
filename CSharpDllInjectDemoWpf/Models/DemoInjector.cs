@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -40,15 +41,13 @@ namespace CSharpDllInjectDemoWpf.Models
         const uint MEM_RESERVE = 0x00002000;
         const uint PAGE_READWRITE = 4;
 
-        // DLL name TODO: Calculate with reflection
-        const string DLL_NAME = "C:\\Users\\Public\\MessageBoxDemo.dll";
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private Process? _targetProcess;
         private IntPtr _procHandle;
         private IntPtr _loadLibraryAddr;
         private IntPtr _allocMemAddr;
+        private string? _dllName;
 
         public string? ProcessName { get; set; }
 
@@ -103,11 +102,16 @@ namespace CSharpDllInjectDemoWpf.Models
             LoadLibraryAddress = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
         }
 
+        public void SetDllName()
+        {
+            _dllName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MessageBoxDemo.dll");
+        }
+
         public void SetAllocMemAddr()
         {
             // alocating some memory on the target process - enough to store the name of the dll
             // and storing its address in a pointer
-            AllocMemoryAddress = VirtualAllocEx(ProcessHandle, IntPtr.Zero, (uint)((DLL_NAME.Length + 1) * Marshal.SizeOf(typeof(char))), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+            AllocMemoryAddress = VirtualAllocEx(ProcessHandle, IntPtr.Zero, (uint)((_dllName.Length + 1) * Marshal.SizeOf(typeof(char))), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
         }
 
         public void WriteProcessMemory()
