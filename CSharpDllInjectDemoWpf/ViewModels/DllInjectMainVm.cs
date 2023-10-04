@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -17,10 +18,13 @@ namespace CSharpDllInjectDemoWpf.ViewModels
         private ProcessInfo? _selectedProcessInfo;
         private List<ProcessInfo>? _processInfos;
         private DemoInjector? _injector;
+        private List<DemoStep>? _demoSteps;
         private ICommand? _startCommand;
 
         public DllInjectMainVm()
         {
+            DemoInjector = new DemoInjector();
+            DemoSteps =  GetDemoSteps();
             ProcessInfos = GetProcesses();
         }
 
@@ -52,6 +56,16 @@ namespace CSharpDllInjectDemoWpf.ViewModels
             }
         }
 
+        public List<DemoStep>? DemoSteps
+        {
+            get => _demoSteps;
+            set
+            {
+                _demoSteps = value;
+                OnPropertyChanged(nameof(DemoSteps));
+            }
+        }
+
         public DemoInjector? DemoInjector
         { 
             get => _injector;
@@ -80,14 +94,21 @@ namespace CSharpDllInjectDemoWpf.ViewModels
 
         private void Start()
         {
-            DemoInjector = new DemoInjector();
-            var demoSteps = new List<DemoStep>();
-            LoadNonExecSteps(demoSteps);
-            LoadExecSteps(demoSteps);
+            //LoadNonExecSteps();
+            //LoadExecSteps();
         }
 
-        private static void LoadNonExecSteps(List<DemoStep> demoSteps)
+        private List<DemoStep> GetDemoSteps()
         {
+            var demoSteps = new List<DemoStep>();
+            demoSteps.AddRange(GetNonExecSteps());
+            demoSteps.AddRange(GetExecSteps());
+            return demoSteps;
+        }
+
+        private List<DemoStep> GetNonExecSteps()
+        {
+            var demoSteps = new List<DemoStep>();
             demoSteps.Add(new DemoStep(null)
             {
                 Code = "[DllImport(\"kernel32.dll\")]\r\n" +
@@ -180,10 +201,12 @@ namespace CSharpDllInjectDemoWpf.ViewModels
                 Description = "Constant for specifying a read/write memory protection type for use with VirtualAllocEx function",
                 Hyperlink = @"https://learn.microsoft.com/en-us/windows/win32/Memory/memory-protection-constants"
             });
+            return demoSteps;
         }
 
-        private void LoadExecSteps(List<DemoStep> demoSteps)
+        private List<DemoStep> GetExecSteps()
         {
+            var demoSteps = new List<DemoStep>();
             demoSteps.Add(new DemoStep(_injector.SetTargetProcess)
             {
                 Code = "Process targetProcess = Process.GetProcessesByName(ProcessName)[0];",
@@ -230,6 +253,7 @@ namespace CSharpDllInjectDemoWpf.ViewModels
                     + "messagebox.",
                 Hyperlink = "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createremotethread"
             });
+            return demoSteps;
         }
     }
 }
