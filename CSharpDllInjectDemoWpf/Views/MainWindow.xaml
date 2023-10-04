@@ -71,8 +71,9 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Margin="0,5,0,5" Grid.Column="0" Text="{Binding Path=Code}" TextWrapping="Wrap" FontFamily="Lucida Console" FontSize="20"/>
                         <Button Grid.Column="1" Margin="5" Padding="5" Height="40" HorizontalAlignment="Right" 
-                                IsEnabled="{Binding NextExecutable}" Visibility="{Binding Path=IsExecutable, 
-                            Converter={StaticResource BoolToVis}}">Execute</Button>
+                                Visibility="{Binding Path=IsExecutable, Converter={StaticResource BoolToVis}}" 
+                                Command="{Binding DataContext.ExecuteCommand, RelativeSource={RelativeSource 
+                                AncestorType=Grid, AncestorLevel=2}}" CommandParameter="{Binding}">Execute</Button>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>            

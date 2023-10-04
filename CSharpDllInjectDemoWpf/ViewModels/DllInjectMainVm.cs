@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 using CSharpDllInjectDemoWpf.Models;
 
@@ -42,6 +43,7 @@ namespace CSharpDllInjectDemoWpf.ViewModels
                 if (_selectedProcessInfo != value)
                 {
                     _selectedProcessInfo = value;
+                    _injector!.ProcessName = _selectedProcessInfo!.Name;
                     OnPropertyChanged(nameof(SelectedProcessInfo));
                 }
             }
@@ -94,7 +96,7 @@ namespace CSharpDllInjectDemoWpf.ViewModels
         {
             get
             {
-                _executeCommand ??= new RelayCommand(exec => Execute());
+                _executeCommand ??= new RelayCommand(Execute, CanExecute);
                 return _executeCommand;
             }
         }
@@ -106,8 +108,33 @@ namespace CSharpDllInjectDemoWpf.ViewModels
             return allInfos.Where(i => i.ModuleName != null).OrderBy(i => i.Name).ToList();
         }
 
-        private void Execute()
+        private void Execute(object demoStep)
         {
+            if (demoStep is DemoStep demoStepToExec)
+            {
+                DemoSteps!.ForEach(ds => ds.NextExecutable = false);
+                demoStepToExec.NextExecutable = true;
+                SelectedDemoStep = demoStepToExec;
+                SelectedDemoStep!.Step!.Invoke();
+                SelectedDemoStep!.NextExecutable = false;
+                var currentIndex = DemoSteps!.IndexOf(SelectedDemoStep);
+                if (currentIndex == DemoSteps.Count - 1)
+                {
+                    Application.Current.Shutdown();
+                    return;
+                }
+                DemoSteps[currentIndex + 1].NextExecutable = true;
+            }
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        private bool CanExecute(object demoStep)
+        {
+            if (demoStep is DemoStep demoStepToExec)
+            {
+                return demoStepToExec.NextExecutable;
+            }
+            return false;
         }
 
         private List<DemoStep> GetDemoSteps()
@@ -235,7 +262,7 @@ namespace CSharpDllInjectDemoWpf.ViewModels
                 Description = "Call OpenProcess API function to get the required process handle with necessary access rights.",
                 Hyperlink = "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess"
             });
-            demoSteps.Add(new DemoStep(_injector.SetProcHandle)
+            demoSteps.Add(new DemoStep(_injector.SetLoadLibraryAddr)
             {
                 Code = "IntPtr loadLibraryAddr = GetProcAddress(GetModuleHandle(\"kernel32.dll\"), \"LoadLibraryA\");",
                 Description = "Call GetProcAddress API function to get to the address of the LoadLibraryA function which will be" +
@@ -257,6 +284,12 @@ namespace CSharpDllInjectDemoWpf.ViewModels
                 Hyperlink = "https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualallocex"
             });
             demoSteps.Add(new DemoStep(_injector.WriteProcessMemory)
+            {
+                Code = "WriteProcessMemory(procHandle, allocMemAddress, Encoding.Default.GetBytes(dllName), (uint)((dllName.Length + 1) * Marshal.SizeOf(typeof(char))), out _);",
+                Description = "Write the DLL path to the allocated memory address in our target process memory space.",
+                Hyperlink = "https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory"
+            });
+            demoSteps.Add(new DemoStep(_injector.CreateRemoteThread)
             {
                 Code = "CreateRemoteThread(procHandle, IntPtr.Zero, 0, loadLibraryAddr, allocMemAddress, 0, IntPtr.Zero);",
                 Description = "Final step. Create a thread in the target process that calls the LoadLibraryA function "

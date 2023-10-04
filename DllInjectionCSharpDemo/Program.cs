@@ -41,7 +41,7 @@ public class BasicInject
     {
         // the target process - I'm using a dummy process for this
         // if you don't have one, open Task Manager and choose wisely
-        Process targetProcess = Process.GetProcessesByName("WINWORD")[0];
+        Process targetProcess = Process.GetProcessesByName("notepad")[0];
 
         // geting the handle of the process - with required privileges
         IntPtr procHandle = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, false, targetProcess.Id);

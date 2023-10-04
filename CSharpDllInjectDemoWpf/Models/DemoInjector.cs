@@ -104,6 +104,7 @@ namespace CSharpDllInjectDemoWpf.Models
         public void SetDllName()
         {
             _dllName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MessageBoxDemo.dll");
+            //_dllName = "C:\\Users\\Public\\MessageBoxDemo.dll";
         }
 
         public void SetAllocMemAddr()
