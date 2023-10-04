@@ -39,7 +39,6 @@ namespace CSharpDllInjectDemoWpf.Models
             get
             {
                 return String.Format("{0:x}", _baseAddress);
-
             }
         }
     }

@@ -53,11 +53,11 @@
             <Label Grid.Column="0" Grid.Row="2" VerticalContentAlignment="Center">Base address: </Label>
             <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=SelectedProcessInfo.BaseAddress}" VerticalAlignment="Center"/>
             <Label Grid.Column="0" Grid.Row="3" VerticalContentAlignment="Center">Process handle:</Label>
-            <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Path=DemoInjector.ProcessHandle}" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Path=DemoInjector.ProcessHandleString}" VerticalAlignment="Center"/>
             <Label Grid.Column="0" Grid.Row="4" VerticalContentAlignment="Center">LoadLibraryA address:</Label>
-            <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding Path=DemoInjector.LoadLibraryAddress}" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding Path=DemoInjector.LoadLibraryAddressString}" VerticalAlignment="Center"/>
             <Label Grid.Column="0" Grid.Row="5" VerticalContentAlignment="Center">AllocMemory address:</Label>
-            <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding Path=DemoInjector.AllocMemoryAddress}" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding Path=DemoInjector.AllocMemoryAddressString}" VerticalAlignment="Center"/>
         </Grid>
         <!-- Demo step list -->
         <ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Path=DemoSteps}" SelectedItem="{Binding

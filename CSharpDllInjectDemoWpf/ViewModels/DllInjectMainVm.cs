@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using CSharpDllInjectDemoWpf.Models;
 
 namespace CSharpDllInjectDemoWpf.ViewModels
 {
-    public class DllInjectMainVm
+    public class DllInjectMainVm : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -125,6 +121,7 @@ namespace CSharpDllInjectDemoWpf.ViewModels
                 }
                 DemoSteps[currentIndex + 1].NextExecutable = true;
             }
+            OnPropertyChanged(nameof(DemoInjector));
             CommandManager.InvalidateRequerySuggested();
         }
 

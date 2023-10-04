@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CSharpDllInjectDemoWpf.Models
 {
-    public class DemoInjector
+    public class DemoInjector : INotifyPropertyChanged
     {
         [DllImport("kernel32.dll")]
         public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
@@ -57,8 +57,13 @@ namespace CSharpDllInjectDemoWpf.Models
             set
             {
                 _procHandle = value;
-                OnPropertyChanged(nameof(ProcessHandle));
+                OnPropertyChanged(nameof(ProcessHandleString));
             }
+        }
+
+        public string ProcessHandleString
+        {
+            get { return _procHandle == 0 ? string.Empty : String.Format("{0:x}", _procHandle); }
         }
 
         public IntPtr LoadLibraryAddress
@@ -67,8 +72,13 @@ namespace CSharpDllInjectDemoWpf.Models
             set
             {
                 _loadLibraryAddr = value;
-                OnPropertyChanged(nameof(LoadLibraryAddress));
+                OnPropertyChanged(nameof(LoadLibraryAddressString));
             }
+        }
+
+        public string LoadLibraryAddressString
+        {
+            get { return _loadLibraryAddr == 0 ? string.Empty : String.Format("{0:x}", _loadLibraryAddr); }
         }
 
         public IntPtr AllocMemoryAddress
@@ -77,8 +87,13 @@ namespace CSharpDllInjectDemoWpf.Models
             set
             {
                 _allocMemAddr = value;
-                OnPropertyChanged(nameof(AllocMemoryAddress));
+                OnPropertyChanged(nameof(AllocMemoryAddressString));
             }
+        }
+
+        public string AllocMemoryAddressString
+        {
+            get { return _allocMemAddr == 0 ? string.Empty : String.Format("{0:x}", _allocMemAddr); }
         }
 
         private void OnPropertyChanged(string propertyName)
@@ -104,7 +119,6 @@ namespace CSharpDllInjectDemoWpf.Models
         public void SetDllName()
         {
             _dllName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MessageBoxDemo.dll");
-            //_dllName = "C:\\Users\\Public\\MessageBoxDemo.dll";
         }
 
         public void SetAllocMemAddr()
