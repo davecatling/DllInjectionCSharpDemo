@@ -5,37 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CSharpDllInjectDemoWpf"
         xmlns:vm="clr-namespace:CSharpDllInjectDemoWpf.ViewModels"
+        xmlns:con="clr-namespace:CSharpDllInjectDemoWpf.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="1000" Width="1200">
     <Window.Resources>
         <vm:DllInjectMainVm x:Key="MainVm"/>
+        <con:BoolToVisibility x:Key="BoolToVis"/>
     </Window.Resources>
     <Grid DataContext="{StaticResource MainVm}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="5*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="6*"/>
+            <RowDefinition Height=".75*"/>
+            <RowDefinition Height=".25*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
+        <!-- Process list -->
         <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Path=ProcessInfos}" ScrollViewer.VerticalScrollBarVisibility="Visible" 
-                 Margin="5" SelectedItem="{Binding Path=SelectedProcessInfo, Mode=TwoWay}">
+                 Margin="1" SelectedItem="{Binding Path=SelectedProcessInfo, Mode=TwoWay}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Path=Name}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Grid Grid.Row="0" Grid.Column="1">
+        <!-- Misc properties -->
+        <Grid Grid.Row="0" Grid.Column="1">            
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="8*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="7*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
@@ -46,7 +49,7 @@
             <Label Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Center">ID: </Label>
             <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Path=SelectedProcessInfo.Id}" VerticalAlignment="Center"/>
             <Label Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Center">File name: </Label>
-            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Path=SelectedProcessInfo.FileName}" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Path=SelectedProcessInfo.FileName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
             <Label Grid.Column="0" Grid.Row="2" VerticalContentAlignment="Center">Base address: </Label>
             <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=SelectedProcessInfo.BaseAddress}" VerticalAlignment="Center"/>
             <Label Grid.Column="0" Grid.Row="3" VerticalContentAlignment="Center">Process handle:</Label>
@@ -55,10 +58,10 @@
             <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding Path=DemoInjector.LoadLibraryAddress}" VerticalAlignment="Center"/>
             <Label Grid.Column="0" Grid.Row="5" VerticalContentAlignment="Center">AllocMemory address:</Label>
             <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding Path=DemoInjector.AllocMemoryAddress}" VerticalAlignment="Center"/>
-            <Button Grid.Row="6" Grid.Column="1" HorizontalAlignment="Right" Margin="5" Padding="5" 
-                    Command="{Binding Path=StartCommand}">Start</Button>
         </Grid>
-        <ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Path=DemoSteps}">
+        <!-- Demo step list -->
+        <ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Path=DemoSteps}" SelectedItem="{Binding
+            Path=SelectedDemoStep, Mode=TwoWay}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -66,12 +69,20 @@
                             <ColumnDefinition Width="1050"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding Path=Code}" TextWrapping="Wrap" FontFamily="Lucida Console" FontSize="20"/>
-                        <Button Grid.Column="1" Margin="5" Padding="5" Height="40" HorizontalAlignment="Right">Execute</Button>
+                        <TextBlock Margin="0,5,0,5" Grid.Column="0" Text="{Binding Path=Code}" TextWrapping="Wrap" FontFamily="Lucida Console" FontSize="20"/>
+                        <Button Grid.Column="1" Margin="5" Padding="5" Height="40" HorizontalAlignment="Right" 
+                                IsEnabled="{Binding NextExecutable}" Visibility="{Binding Path=IsExecutable, 
+                            Converter={StaticResource BoolToVis}}">Execute</Button>
                     </Grid>
                 </DataTemplate>
-            </ListBox.ItemTemplate>
-            
+            </ListBox.ItemTemplate>            
         </ListBox>
+        <!-- Demo step description -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path=SelectedDemoStep.Description}" FontSize="18"
+                   TextWrapping="Wrap"/>
+        <!-- Demo step hyperlink -->
+        <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Background="AliceBlue" FontSize="18">
+            <Hyperlink NavigateUri="{Binding Path=SelectedDemoStep.Hyperlink}" RequestNavigate="Hyperlink_RequestNavigate"><TextBlock Text="{Binding Path=SelectedDemoStep.Hyperlink}"/></Hyperlink>
+        </TextBlock>
     </Grid>
 </Window>

@@ -16,10 +16,11 @@ namespace CSharpDllInjectDemoWpf.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private ProcessInfo? _selectedProcessInfo;
+        private DemoStep? _selectedDemoStep;
         private List<ProcessInfo>? _processInfos;
         private DemoInjector? _injector;
         private List<DemoStep>? _demoSteps;
-        private ICommand? _startCommand;
+        private ICommand? _executeCommand;
 
         public DllInjectMainVm()
         {
@@ -42,6 +43,19 @@ namespace CSharpDllInjectDemoWpf.ViewModels
                 {
                     _selectedProcessInfo = value;
                     OnPropertyChanged(nameof(SelectedProcessInfo));
+                }
+            }
+        }
+
+        public DemoStep? SelectedDemoStep
+        {
+            get => _selectedDemoStep;
+            set
+            {
+                if (_selectedDemoStep != value)
+                {
+                    _selectedDemoStep = value;
+                    OnPropertyChanged(nameof(SelectedDemoStep));
                 }
             }
         }
@@ -76,12 +90,12 @@ namespace CSharpDllInjectDemoWpf.ViewModels
             }
         }
 
-        public ICommand StartCommand
+        public ICommand ExecuteCommand
         {
             get
             {
-                _startCommand ??= new RelayCommand(exec => Start(), canExec => SelectedProcessInfo != null);
-                return _startCommand;
+                _executeCommand ??= new RelayCommand(exec => Execute());
+                return _executeCommand;
             }
         }
 
@@ -92,10 +106,8 @@ namespace CSharpDllInjectDemoWpf.ViewModels
             return allInfos.Where(i => i.ModuleName != null).OrderBy(i => i.Name).ToList();
         }
 
-        private void Start()
+        private void Execute()
         {
-            //LoadNonExecSteps();
-            //LoadExecSteps();
         }
 
         private List<DemoStep> GetDemoSteps()
@@ -103,6 +115,7 @@ namespace CSharpDllInjectDemoWpf.ViewModels
             var demoSteps = new List<DemoStep>();
             demoSteps.AddRange(GetNonExecSteps());
             demoSteps.AddRange(GetExecSteps());
+            demoSteps.First(ds => ds.IsExecutable).NextExecutable = true;
             return demoSteps;
         }
 
